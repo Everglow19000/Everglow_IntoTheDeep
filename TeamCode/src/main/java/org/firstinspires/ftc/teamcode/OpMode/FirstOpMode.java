@@ -73,7 +73,7 @@ public class FirstOpMode extends LinearOpMode {
             }
             else {
                 Actions.runBlocking(claws.setClawSampleInteractionAction(DifferentialClaws.ClawPowerState.OFF));
-                claws.rotateArm(gamepad2.left_stick_y);
+                claws.rotateArm(-gamepad2.left_stick_y*0.75);
             }
 
             if (Math.abs(gamepad2.right_stick_y) > joystickTolerance) {
