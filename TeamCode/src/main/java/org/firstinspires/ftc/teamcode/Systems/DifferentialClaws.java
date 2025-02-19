@@ -23,6 +23,8 @@ import org.firstinspires.ftc.teamcode.Systems.Token.TokenAction;
 
 public class DifferentialClaws {
 
+    static DifferentialClaws instance;
+
     CRServo leftClawServo;
     CRServo rightClawServo;
     AnalogInput clawInput1;
@@ -195,9 +197,12 @@ public class DifferentialClaws {
         updateRightClawServoRotation();
         rightClawStart = trueRightRotation;
         leftClawStart = trueLeftRotation;
+
         leftClawOldPos = leftClawStart;
         rightClawOldPos = rightClawStart;
         armStartingPosition = getArmPosition() + maxPoint;
+
+        instance = this;
 
     }
 
@@ -365,6 +370,10 @@ public class DifferentialClaws {
 
     public HoldClawAndDropSampleAction test(double timeToHold, double timeToDrop) {
         return new HoldClawAndDropSampleAction(timeToHold, timeToDrop);
+    }
+
+    public static DifferentialClaws getInstance() {
+        return instance;
     }
 
 //    public ClawMovementAction clawMovementAction(double dest) {

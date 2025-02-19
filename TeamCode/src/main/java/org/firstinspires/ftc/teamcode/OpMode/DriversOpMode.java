@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Systems.ActionControl;
 import org.firstinspires.ftc.teamcode.Systems.ColorSensorSystem;
 import org.firstinspires.ftc.teamcode.Systems.DifferentialClaws;
 import org.firstinspires.ftc.teamcode.Systems.Elevators;
+import org.firstinspires.ftc.teamcode.Systems.Sweeper;
 
 public class DriversOpMode {
     private final LinearOpMode opMode;
@@ -27,10 +28,19 @@ public class DriversOpMode {
     }
 
     public void run(boolean isBlue){
-        DifferentialClaws claws = new DifferentialClaws(opMode);
+
+        DifferentialClaws claws;
+        if(DifferentialClaws.getInstance() == null) {
+            claws = new DifferentialClaws(opMode);
+        }
+        else {
+            claws = DifferentialClaws.getInstance();
+        }
+
         MecanumDrive drive = new MecanumDrive(opMode.hardwareMap, new Pose2d(0, 0, 0));
         ColorSensorSystem colorSensorSystem = new ColorSensorSystem(opMode, isBlue);
         Elevators elevators = new Elevators(opMode);
+        Sweeper sweeper = new Sweeper(opMode);
         elevators.setVerticalPower(0.0);
         boolean isInitialized = false;
         boolean secondery = false;
@@ -55,6 +65,7 @@ public class DriversOpMode {
         boolean flagElevatorHorizontalSquare = true;
 
         boolean flagClawTakeIn = true;
+        boolean flagSweeper = true;
         boolean leftBumper = true;
         boolean rightBumper = true;
         double lastPIDPower = 0;
@@ -82,6 +93,9 @@ public class DriversOpMode {
             ));
             drive.updatePoseEstimate();
 
+            if(gamepad1.right_trigger > 0.4 && flagSweeper)
+                sweeper.toggle();
+            flagSweeper = !(gamepad1.right_trigger>0.4);
 
             claws.updateRightClawServoRotation();
             claws.updateLeftClawServoRotation();
@@ -128,6 +142,7 @@ public class DriversOpMode {
                 elevators.motorSetHorizontalDestination((int)(horElevatorPosition));
             }
             opMode.telemetry.addData("hor motor: ", elevators.horMotor.getPower());
+            opMode.telemetry.addData("arm Position:", claws.getActualArmRotation());
             opMode.telemetry.addData("virtual Pos:", virtualClawPose);
             opMode.telemetry.addData("precieved hor position: ", horElevatorPosition);
             opMode.telemetry.addData("hor position: ", elevators.motorGetHorizontalPosition());
