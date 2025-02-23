@@ -8,10 +8,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class TestServo extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
+
+        // start pos: 0.4334
+        // max pos:
         Servo servo = hardwareMap.get(Servo.class, "HorServo");
 
-        servo.setPosition(0);
-        double virtualPos = 0;
+        servo.setPosition(0.4334);
+        double virtualPos = 0.4334;
         waitForStart();
 
         while (opModeIsActive()){
