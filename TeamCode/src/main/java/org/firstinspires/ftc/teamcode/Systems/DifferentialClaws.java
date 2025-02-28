@@ -215,6 +215,8 @@ public class DifferentialClaws {
             instance.rotateArm(0);
 
             instance.setCorrectDirections();
+            instance.updateLeftClawServoRotation();
+            instance.updateRightClawServoRotation();
         }
 
         return instance;
