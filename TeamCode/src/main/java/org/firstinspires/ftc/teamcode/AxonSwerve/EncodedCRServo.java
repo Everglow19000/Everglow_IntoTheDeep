@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 /*
     -----------------------------------------------------
-    | This uses degrees cuz they are the easiest for me |
+    | This uses radians cuz they will work nice with RR |
     -----------------------------------------------------
  */
 
@@ -57,18 +57,18 @@ public class EncodedCRServo {
     }
 
     private double getCurrentAngle() {
-        return ((input.getVoltage()/input.getMaxVoltage())*360) - inputOffset;
+        return ((input.getVoltage()/input.getMaxVoltage())*Math.PI*2) - inputOffset;
     }
 
     private void calculatePosition() {
         double currAngle = getCurrentAngle();
         double angleDifference = currAngle - lastAngle;
 
-        if (angleDifference > 180) {
-            angleDifference -= 360;
+        if (angleDifference > Math.PI) {
+            angleDifference -= Math.PI*2;
         }
-        else if (angleDifference < -180) {
-            angleDifference += 360;
+        else if (angleDifference < -Math.PI) {
+            angleDifference += Math.PI*2;
         }
         position += angleDifference;
         lastAngle = currAngle;
