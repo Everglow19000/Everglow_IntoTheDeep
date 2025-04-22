@@ -43,6 +43,7 @@ public class EncodedCRServo {
     public EncodedCRServo(CRServo servo, AnalogInput input, PIDFCoefficients pidfCoefficients) {
         this.servo = servo;
         this.input = input;
+        this.pidfController = new PIDFController(pidfCoefficients.p, pidfCoefficients.i, pidfCoefficients.d, pidfCoefficients.f);
         resetEncoder();
         setPidfCoefficients(pidfCoefficients);
     }
