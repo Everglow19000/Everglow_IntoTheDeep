@@ -5,6 +5,14 @@
 */
 package org.firstinspires.ftc.teamcode.tuning;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -12,6 +20,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Drawing;
+import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 /*
  * This OpMode illustrates how to use the SparkFun Qwiic Optical Tracking Odometry Sensor (OTOS)
@@ -23,17 +33,25 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  *
  * See the sensor's product page: https://www.sparkfun.com/products/24904
  */
-@Disabled
 @TeleOp(name = "Sensor: SparkFun OTOS", group = "Sensor")
 
 public class SparkFunOTOSTest extends LinearOpMode {
+
+    public static double linearToExpo(double input) {
+        return (input >= 0) ? input*input : -input*input;
+    }
+
     // Create an instance of the sensor
     SparkFunOTOS myOtos;
+    MecanumDrive drive;
 
     @Override
     public void runOpMode() throws InterruptedException {
         // Get a reference to the sensor
         myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        GamepadEx gamepad1Ex = new GamepadEx(gamepad1);
 
         // All the configuration for the OTOS is done in this helper method, check it out!
         configureOtos();
@@ -43,9 +61,20 @@ public class SparkFunOTOSTest extends LinearOpMode {
 
         // Loop until the OpMode ends
         while (opModeIsActive()) {
+            gamepad1Ex.readButtons();
+            //driving
+            drive.setDrivePowers(new PoseVelocity2d(
+                    new Vector2d(
+                            linearToExpo(gamepad1Ex.getLeftY())*(1.0/Math.pow(4.5, gamepad1Ex.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER))),
+                            -gamepad1Ex.getLeftX()*(1.0/Math.pow(4, gamepad1Ex.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)))
+                    ),
+                    -gamepad1Ex.getRightX()*(1.0/Math.pow(5, gamepad1Ex.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)))
+            ));
             // Get the latest position, which includes the x and y coordinates, plus the
             // heading angle
             SparkFunOTOS.Pose2D pos = myOtos.getPosition();
+
+            myOtos.setOffset(new SparkFunOTOS.Pose2D(3.4, 6, 0));
 
             // Reset the tracking if the user requests it
             if (gamepad1.y) {
@@ -63,12 +92,17 @@ public class SparkFunOTOSTest extends LinearOpMode {
             telemetry.addLine();
 
             // Log the position to the telemetry
-            telemetry.addData("X coordinate", pos.x);
-            telemetry.addData("Y coordinate", pos.y);
-            telemetry.addData("Heading angle", pos.h);
+            telemetry.addData("x", pos.x);
+            telemetry.addData("y", pos.y);
+            telemetry.addData("heading (deg)", pos.h);
 
             // Update the telemetry on the driver station
             telemetry.update();
+
+            TelemetryPacket packet = new TelemetryPacket();
+            packet.fieldOverlay().setStroke("#3F51B5");
+            Drawing.drawRobot(packet.fieldOverlay(), new Pose2d(pos.x, pos.y, pos.h));
+            FtcDashboard.getInstance().sendTelemetryPacket(packet);
         }
     }
 
