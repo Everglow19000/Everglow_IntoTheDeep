@@ -40,6 +40,8 @@ public class Robot {
             claws.setArmTargetPosition(targetArmPosition);
             claws.rotateArm(claws.getPIDArmPower());
         }
+
+        elevators.updateVert();
     }
 
 
