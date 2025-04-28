@@ -56,7 +56,8 @@ public class ActionControl {
                         claws.clawMovementAction(DifferentialClaws.ClawPositionState.MAX.state, 750, stopToken),
                         elevators.setVerticalElevatorAction(VerticalState.VERTICAL_SPECIMEN_HIGH, stopToken),
                         claws.clawMovementAction(DifferentialClaws.ClawPositionState.HANG_SPECIMEN.state, 750, stopToken),
-                        elevators.setVerticalElevatorAction(Elevators.VerticalState.VERTICAL_SPECIMEN_PICKUP_AUTO, stopToken)
+                        elevators.setVerticalElevatorAction(Elevators.VerticalState.VERTICAL_SPECIMEN_PICKUP_AUTO, stopToken),
+                        claws.clawMovementAction(DifferentialClaws.ClawPositionState.MAX.state, 750, stopToken)
                 )
                 , stopToken);
     }
