@@ -286,9 +286,12 @@ public class MecanumDrive{
         public FollowTrajectoryAction(TimeTrajectory t) {
             timeTrajectory = t;
 
+            // list of time values
             List<Double> disps = com.acmerobotics.roadrunner.Math.range(
                     0, t.path.length(),
                     Math.max(2, (int) Math.ceil(t.path.length() / 2)));
+
+            // create the desired x and y points based on the list of time values
             xPoints = new double[disps.size()];
             yPoints = new double[disps.size()];
             for (int i = 0; i < disps.size(); i++) {
@@ -300,14 +303,16 @@ public class MecanumDrive{
 
         @Override
         public boolean run(@NonNull TelemetryPacket p) {
-            double t;
+            // record start time and current time
+            double t; // current time
             if (beginTs < 0) {
-                beginTs = Actions.now();
+                beginTs = Actions.now(); // start time
                 t = 0;
             } else {
                 t = Actions.now() - beginTs;
             }
 
+            // stop if going on for too long
             if (t >= timeTrajectory.duration) {
                 frontLeft.setPower(0);
                 backLeft.setPower(0);
@@ -317,30 +322,41 @@ public class MecanumDrive{
                 return false;
             }
 
+            // check where we want to go to
             Pose2dDual<Time> txWorldTarget = timeTrajectory.get(t);
-            targetPoseWriter.write(new PoseMessage(txWorldTarget.value()));
 
+            // dont think this is needed
+//            targetPoseWriter.write(new PoseMessage(txWorldTarget.value()));
+
+            // current robot velocity
             PoseVelocity2d robotVelRobot = updatePoseEstimate();
 
+            // calculate the wanted velocity
             PoseVelocity2dDual<Time> command = new HolonomicController(
                     PARAMS.axialGain, PARAMS.lateralGain, PARAMS.headingGain,
                     PARAMS.axialVelGain, PARAMS.lateralVelGain, PARAMS.headingVelGain
             )
                     .compute(txWorldTarget, pose, robotVelRobot);
-            driveCommandWriter.write(new DriveCommandMessage(command));
 
+            // dont think this is needed
+//            driveCommandWriter.write(new DriveCommandMessage(command));
+
+            // the wanted wheel velocities
             MecanumKinematics.WheelVelocities<Time> wheelVels = kinematics.inverse(command);
             double voltage = voltageSensor.getVoltage();
 
+            // determine power of each motor
             final MotorFeedforward feedforward = new MotorFeedforward(PARAMS.kS,
                     PARAMS.kV / PARAMS.inPerTick, PARAMS.kA / PARAMS.inPerTick);
             double leftFrontPower = feedforward.compute(wheelVels.leftFront) / voltage;
             double leftBackPower = feedforward.compute(wheelVels.leftBack) / voltage;
             double rightBackPower = feedforward.compute(wheelVels.rightBack) / voltage;
             double rightFrontPower = feedforward.compute(wheelVels.rightFront) / voltage;
-            mecanumCommandWriter.write(new MecanumCommandMessage(
-                    voltage, leftFrontPower, leftBackPower, rightBackPower, rightFrontPower
-            ));
+
+            // dont think this is needed
+//            mecanumCommandWriter.write(new MecanumCommandMessage(
+//                    voltage, leftFrontPower, leftBackPower, rightBackPower, rightFrontPower
+//            ));
 
             frontLeft.setPower(leftFrontPower);
             backLeft.setPower(leftBackPower);

@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 public class EncodedCRServo {
     public enum RunMode {
         RUN_WITH_ENCODER, // Rotates according to the given power and tracks it's position
-        RUN_TO_POSITION // Runs to the given position, in degrees
+        RUN_TO_POSITION // Runs to the given position, in radians
     }
     private CRServo servo;
     private AnalogInput input;

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Systems;
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Systems.Token.Token;
 import org.firstinspires.ftc.teamcode.Systems.Token.TokenAction;
 import org.firstinspires.ftc.teamcode.Systems.Token.Tokenable;
 
-public class Elevators implements Tokenable {
+public class Elevators{
     final int epsilon = 100;
 
 
@@ -57,14 +58,9 @@ public class Elevators implements Tokenable {
         }
     }
 
-
-    /*
-    -------------------------------------------------------------------
-    | stepSize and tolerance need to be tuned so it feels good to use |
-    -------------------------------------------------------------------
-     */
     // moves the horizontal elevators to destination, and is considered finished when they reach the destination
     public class HorizontalElevatorAction extends TokenAction {
+
         private boolean hasEnoughTimePassed() {
             return System.currentTimeMillis() - startTime >= timeUntilDone;
         }
@@ -72,7 +68,6 @@ public class Elevators implements Tokenable {
         private final double timeUntilDone;
         private double startTime;
         private Token token;
-
         public HorizontalElevatorAction(HorizontalState state, double timeUntilDone) {
             isDone = HorizontalElevatorAction.this::hasEnoughTimePassed;
             desitnation = state.state;
@@ -98,8 +93,27 @@ public class Elevators implements Tokenable {
 
             return !hasEnoughTimePassed();
         }
+
     }
 
+    public class VerticalElevatorActionExample implements Action {
+        private final int destination;
+        private boolean isInitialized;
+
+        public VerticalElevatorActionExample(int destination) {
+            this.destination = destination;
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            if (!isInitialized) {
+                setVerticalDestination(this.destination);
+                isInitialized = true;
+            }
+
+            return !isElevatorInDestination();
+        }
+    }
 
 
     // Vertical min is lowest possible, max is highest possible, low and high are terms for the baskets

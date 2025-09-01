@@ -24,7 +24,7 @@ public class specimins {
         double thirdSpeciminX = 60;
         double PickSpeciminY = -12;
 
-        Pose2d specimins_beginPose = new Pose2d(16, -62,   Math.PI/2);
+        Pose2d specimins_beginPose = new Pose2d(16, -22,   Math.PI/2);
         Pose2d specimins_basketPose = new Pose2d(0,-34,Math.PI/2);
         Pose2d specimins_endPose = new Pose2d(23,-10,0);
         Pose2d specimins_pickupPose = new Pose2d(48,-55,-Math.PI/2);
