@@ -68,18 +68,36 @@ public class Robot {
         return (input >= 0) ? input*input : -input*input;
     }
 
-    // leftX and leftY control the robots movement, rightX controls it's rotation, and slowAmount slows everything down (all must be between 0-1)
-    public void setOpModeDrivePowers(double leftX, double leftY, double rightX, double slowAmount) {
+    public static Vector2d rotateByAngle(Vector2d vector, double angle) {
+        double newX = vector.x*Math.cos(angle) - vector.y*Math.sin(angle);
+        double newY = vector.x*Math.sin(angle) + vector.y*Math.cos(angle);
+
+        return new Vector2d(newX, newY);
+    }
+
+    // leftX and leftY control the robots movement, rightX controls it's rotation, and slowAmount slows everything down (all must be between 0-1). isAbsolute means the robot will move in relation to the field and not its own rotation
+    public void setOpModeDrivePowers(double leftX, double leftY, double rightX, double slowAmount, boolean isAbsolute) {
+        Vector2d movement = new Vector2d(
+                linearToExpo(leftY)*(1.0/Math.pow(4.5, slowAmount)),
+                leftX*(1.0/Math.pow(4, slowAmount))
+        );
+
+        if (isAbsolute) {
+            movement = rotateByAngle(movement, -drive.pose.heading.toDouble());
+        }
+
         //driving
         drive.setDrivePowers(new PoseVelocity2d(
-                new Vector2d(
-                        linearToExpo(leftY)*(1.0/Math.pow(4.5, slowAmount)),
-                        leftX*(1.0/Math.pow(4, slowAmount))
-                ),
+                movement,
                 rightX*(1.0/Math.pow(5, slowAmount))
         ));
 
         drive.updatePoseEstimate();
+    }
+
+    // leftX and leftY control the robots movement, rightX controls it's rotation, and slowAmount slows everything down (all must be between 0-1).
+    public void setOpModeDrivePowers(double leftX, double leftY, double rightX, double slowAmount) {
+        setOpModeDrivePowers(leftX, leftY, rightX, slowAmount, false);
     }
 
     public void setVerticalElevatorsHeight(int height) {
